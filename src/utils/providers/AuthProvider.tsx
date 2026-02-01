@@ -1,5 +1,5 @@
 'use client';
-import { useReducer, ReactNode, useEffect } from 'react';
+import { useReducer, ReactNode, useEffect, useState } from 'react';
 import {
   AuthDispatchContext,
   AuthStateContext,
@@ -10,26 +10,35 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const getInitialState = () => ({
+  userDetails: null,
+  accessToken: null,
+  refreshToken: null,
+  loading: true,
+  errorMessage: null,
+});
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const user = localStorage.getItem('currentUser')
-    ? JSON.parse(localStorage.getItem('currentUser')!).user
-    : null;
-  const accessToken = localStorage.getItem('currentUser')
-    ? JSON.parse(localStorage.getItem('currentUser')!).accessToken
-    : null;
-  const refreshToken = localStorage.getItem('currentUser')
-    ? JSON.parse(localStorage.getItem('currentUser')!).refreshToken
-    : null;
+  const [userLoggedIn, dispatch] = useReducer(AuthReducer, getInitialState());
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  const initialState = {
-    userDetails: user,
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    loading: false,
-    errorMessage: null,
-  };
-
-  const [userLoggedIn, dispatch] = useReducer(AuthReducer, initialState);
+  useEffect(() => {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: {
+          user: parsed.user,
+          accessToken: parsed.accessToken,
+          refreshToken: parsed.refreshToken,
+        },
+      });
+    } else {
+      dispatch({ type: 'LOGOUT' });
+    }
+    setIsHydrated(true);
+  }, []);
 
   return (
     <AuthStateContext.Provider value={userLoggedIn}>

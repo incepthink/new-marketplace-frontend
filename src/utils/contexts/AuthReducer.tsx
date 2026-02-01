@@ -24,6 +24,7 @@ export const AuthReducer = (
         userDetails: null,
         accessToken: null,
         refreshToken: null,
+        loading: false,
       };
     case 'LOGIN_ERROR':
       return {

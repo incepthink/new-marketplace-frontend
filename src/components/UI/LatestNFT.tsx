@@ -48,10 +48,13 @@ export default function LatestNFT() {
       </div>
     );
   if (nftData) {
+    const items = Array.isArray(nftData.paginatedData)
+      ? nftData.paginatedData
+      : [];
     return (
       <div className="w-full flex flex-col items-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 w-full p-10">
-          {nftData.paginatedData.map((nft: any, index: number) => {
+          {items.map((nft: any, index: number) => {
             return (
               <NFTCard
                 nft={{
